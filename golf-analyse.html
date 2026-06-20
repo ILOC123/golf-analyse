@@ -1276,16 +1276,26 @@ function seedCourses(){
 
 // ── HCP LOG ──────────────────────────────────────────────────────
 function seedHcpLog(){
-  if(HCP_LOG.length) return;
+  if(HCP_LOG.length>=18) return;
   HCP_LOG=[
-    {date:'2024-07-14',hcp:22.1,note:'Clubmeisterschaften 2024'},
+    {date:'2024-07-14',hcp:22.1,note:'Clubmeisterschaften 2024, 2. Rd'},
     {date:'2024-08-03',hcp:22.1,note:'Davos Masters'},
     {date:'2024-08-11',hcp:21.7,note:'General Play'},
+    {date:'2024-08-25',hcp:21.1,note:'General Play'},
+    {date:'2024-08-31',hcp:20.9,note:'General Play (Appenzell)'},
+    {date:'2024-09-29',hcp:19.9,note:'EDS: Bauriedl, Fritz'},
     {date:'2024-10-06',hcp:19.4,note:'General Play'},
     {date:'2024-10-12',hcp:18.9,note:'Abgolfen'},
     {date:'2024-10-20',hcp:18.6,note:'General Play'},
     {date:'2024-10-26',hcp:18.6,note:'Club Turnier ADANK'},
+    {date:'2025-06-21',hcp:17.9,note:'EDS: Langner, Joachim'},
+    {date:'2025-06-22',hcp:15.6,note:'EDS: Ryf, Fabian'},
+    {date:'2025-06-25',hcp:14.9,note:'General Play'},
+    {date:'2025-06-26',hcp:14.9,note:'General Play'},
+    {date:'2025-07-12',hcp:14.9,note:'Clubmeisterschaften 2025, 1. Rd'},
+    {date:'2025-07-13',hcp:14.9,note:'Clubmeisterschaften 2025, 2. Rd'},
     {date:'2025-07-19',hcp:14.0,note:'Best of the Alps Golf Cup'},
+    {date:'2025-08-23',hcp:14.0,note:'Davos Masters'},
     {date:'2025-10-11',hcp:14.0,note:'Abgolfen'},
     {date:'2026-06-14',hcp:14.3,note:'General Play'}
   ];
