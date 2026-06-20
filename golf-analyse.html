@@ -276,8 +276,8 @@ html,body{height:100%;background:var(--dark);color:var(--white);font-family:var(
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
               <div style="font-size:11px;color:var(--grey);">Netto HCP: <b id="sum-netto" style="color:var(--white);">—</b></div>
               <div style="display:flex;gap:10px;font-size:11px;color:var(--grey);">
-                <span>Vor: <b id="sum-out" style="color:var(--white);">—</b></span>
-                <span>Nach: <b id="sum-in" style="color:var(--white);">—</b></span>
+                <span>Front 9: <b id="sum-out" style="color:var(--white);">—</b> Pkt</span>
+                <span>Back 9: <b id="sum-in" style="color:var(--white);">—</b> Pkt</span>
               </div>
             </div>
           </div>
@@ -704,10 +704,29 @@ function updateSummaryStrip(){
   if(!activeRound) return;
   var course=COURSES[activeRound.courseId];
   var outS=0,outP=0,inS=0,inP=0,outV=0,inV=0;
+  var outPts=0,inPts=0;
+  var pHcp0=activeRound.playingHcp||0;
   activeRound.holes.forEach(function(h,i){
     var par=course&&course.holes[i]?course.holes[i].par:4;
-    if(i<9){outP+=par;if(activeRound.visited[i]){outS+=h.score||par;outV++;}}
-    else{inP+=par;if(activeRound.visited[i]){inS+=h.score||par;inV++;}}
+    var si=course&&course.holes[i]?course.holes[i].si:0;
+    var ex=extraStrokes(pHcp0,si);
+    if(i<9){
+      outP+=par;
+      if(activeRound.visited[i]){
+        var sc=h.score||par;
+        outS+=sc; outV++;
+        var netto=sc-ex; var d=netto-par;
+        outPts+=d<=-2?4:d===-1?3:d===0?2:d===1?1:0;
+      }
+    } else {
+      inP+=par;
+      if(activeRound.visited[i]){
+        var sc=h.score||par;
+        inS+=sc; inV++;
+        var netto=sc-ex; var d=netto-par;
+        inPts+=d<=-2?4:d===-1?3:d===0?2:d===1?1:0;
+      }
+    }
   });
   var totS=outS+inS, totP=outP+inP;
   var diff=totS-totP;
@@ -716,11 +735,10 @@ function updateSummaryStrip(){
   document.getElementById('sum-total').textContent=totS||'—';
   var dEl=document.getElementById('sum-diff');
   dEl.textContent=ds; dEl.style.color=dc;
-  document.getElementById('sum-out').textContent=outV?outS:'—';
-  document.getElementById('sum-in').textContent=inV?inS:'—';
+  document.getElementById('sum-out').textContent=outV?outPts:'—';
+  document.getElementById('sum-in').textContent=inV?inPts:'—';
 
-  // Netto HCP stand (nur gespielte Löcher)
-  var pHcp=activeRound.playingHcp||0;
+  // Netto HCP stand (bereits in Loop oben berechnet, pHcp0 wiederverwenden)
   var visitedScore=0,visitedPar=0,strokesReceived=0;
   activeRound.holes.forEach(function(h,i){
     if(!activeRound.visited[i]) return;
@@ -728,7 +746,7 @@ function updateSummaryStrip(){
     var si=course&&course.holes[i]?course.holes[i].si:0;
     visitedPar+=par;
     visitedScore+=h.score||par;
-    strokesReceived+=extraStrokes(pHcp,si);
+    strokesReceived+=extraStrokes(pHcp0,si);
   });
   var nettoDiff=(visitedScore-visitedPar)-strokesReceived;
   var nettoLabel=totS===0?'—':(nettoDiff===0?'E':(nettoDiff>0?'+'+nettoDiff:''+nettoDiff));
