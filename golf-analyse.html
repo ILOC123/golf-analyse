@@ -516,11 +516,40 @@ function calcStats(rounds){
 }
 
 // ── RENDER STATS ─────────────────────────────────────────────────
+function renderHcpKurve(){
+  var hcpSorted=HCP_LOG.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
+  var btn='<button class="btn-secondary btn-sm" onclick="openHcpSheet()" style="font-size:12px;padding:4px 10px;">+ Eintrag</button>';
+  if(!hcpSorted.length){
+    return '<div class="card"><div class="card-hdr"><div class="card-title">Handicap-Entwicklung</div>'+btn+'</div>'
+      +'<div class="card-body"><div style="font-size:13px;color:var(--grey);text-align:center;padding:8px 0;">Noch keine Einträge.</div></div></div>';
+  }
+  var hcpVals=hcpSorted.map(function(e){return e.hcp||0;});
+  var hcpMax=Math.max.apply(null,hcpVals)||1;
+  var hcpRows=hcpSorted.map(function(e,i){
+    var hcp=e.hcp||0;
+    var pct=Math.round(hcp/hcpMax*100);
+    var dp=e.date.split('-'); var ds=dp[2]+'.'+dp[1]+'.'+dp[0].slice(2);
+    var prev=i>0?hcpVals[i-1]:hcp;
+    var arr=hcp<prev?'↓':hcp>prev?'↑':'→';
+    var ac=hcp<prev?'var(--green)':hcp>prev?'var(--red)':'var(--grey)';
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
+      +'<div style="width:52px;font-size:10px;color:var(--grey);">'+ds+'</div>'
+      +'<div style="flex:1;background:var(--dark3);border-radius:4px;height:9px;">'
+      +'<div style="width:'+pct+'%;background:var(--gold);border-radius:4px;height:9px;"></div></div>'
+      +'<div style="width:32px;font-family:var(--mono);font-size:12px;font-weight:700;text-align:right;">'+hcp+'</div>'
+      +'<div style="width:14px;font-size:11px;color:'+ac+';text-align:center;">'+arr+'</div></div>';
+  }).join('');
+  return '<div class="card"><div class="card-hdr"><div class="card-title">Handicap-Entwicklung</div>'+btn+'</div>'
+    +'<div class="card-body" style="padding:10px 14px;">'+hcpRows+'</div></div>';
+}
+
 function renderStats(){
   var rounds=filteredRounds();
   var el=document.getElementById('stats-body');
   if(!rounds.length){
-    el.innerHTML='<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">Noch keine Runden</div><div class="empty-sub">Erfasse deine erste Runde um Statistiken zu sehen</div></div>';
+    var hcpOnlyStr=renderHcpKurve();
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">Noch keine Runden</div><div class="empty-sub">Erfasse deine erste Runde um Statistiken zu sehen</div></div>'
+      +hcpOnlyStr;
     return;
   }
   var s=calcStats(rounds);
@@ -557,34 +586,8 @@ function renderStats(){
   }
 
 
-  var hcpSorted=HCP_LOG.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
-  var hcpKurve='';
-  if(hcpSorted.length>=1){
-    var hcpVals=hcpSorted.map(function(e){return e.hcp||0;});
-    var hcpMax=Math.max.apply(null,hcpVals)||1;
-    var hcpRows=hcpSorted.map(function(e,i){
-      var hcp=e.hcp||0;
-      var pct=Math.round(hcp/hcpMax*100);
-      var dp=e.date.split('-'); var ds=dp[2]+'.'+dp[1]+'.'+dp[0].slice(2);
-      var prev=i>0?hcpVals[i-1]:hcp;
-      var arr=hcp<prev?'↓':hcp>prev?'↑':'→';
-      var ac=hcp<prev?'var(--green)':hcp>prev?'var(--red)':'var(--grey)';
-      return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
-        +'<div style="width:52px;font-size:10px;color:var(--grey);">'+ds+'</div>'
-        +'<div style="flex:1;background:var(--dark3);border-radius:4px;height:9px;">'
-        +'<div style="width:'+pct+'%;background:var(--gold);border-radius:4px;height:9px;"></div></div>'
-        +'<div style="width:32px;font-family:var(--mono);font-size:12px;font-weight:700;text-align:right;">'+hcp+'</div>'
-        +'<div style="width:14px;font-size:11px;color:'+ac+';text-align:center;">'+arr+'</div></div>';
-    }).join('');
-    hcpKurve='<div class="card"><div class="card-hdr"><div class="card-title">Handicap-Entwicklung</div>'
-      +'<button class="btn-secondary btn-sm" onclick="openHcpSheet()" style="font-size:12px;padding:4px 10px;">+ Eintrag</button></div>'
-      +'<div class="card-body" style="padding:10px 14px;">'+hcpRows+'</div></div>';
-  } else {
-    hcpKurve='<div class="card"><div class="card-hdr"><div class="card-title">Handicap-Entwicklung</div>'
-      +'<button class="btn-secondary btn-sm" onclick="openHcpSheet()" style="font-size:12px;padding:4px 10px;">+ Eintrag</button></div>'
-      +'<div class="card-body"><div style="font-size:13px;color:var(--grey);text-align:center;padding:8px 0;">Noch keine Einträge.</div></div></div>';
-  }
-  var worst=s.holeArr.slice(0,3);
+  var hcpKurve=renderHcpKurve();
+    var worst=s.holeArr.slice(0,3);
   var best=s.holeArr.slice(-3).reverse();
 
   el.innerHTML=
