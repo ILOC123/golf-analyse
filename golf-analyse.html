@@ -214,7 +214,10 @@ html,body{height:100%;background:var(--dark);color:var(--white);font-family:var(
 <div id="app">
 
   <div id="topbar">
-    <div class="app-title">GOLF ANALYSE</div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
+      <div class="app-title">GOLF ANALYSE</div>
+      <div onclick="openChangelog()" style="font-size:10px;color:var(--grey);letter-spacing:1px;cursor:pointer;">v<span id="ver-display"></span></div>
+    </div>
   </div>
 
   <div id="content">
@@ -388,6 +391,14 @@ html,body{height:100%;background:var(--dark);color:var(--white);font-family:var(
 
 <script>
 // ── DATA ──────────────────────────────────────────────────────────
+var APP_VERSION = '1.4.0';
+var CHANGELOG = [
+  {v:'1.4.0',date:'20.06.2026',notes:['Versionsanzeige mit Changelog','Klosters & Alvaneu Bad bestätigt']},
+  {v:'1.3.0',date:'20.06.2026',notes:['HCP-Log mit 20 Einträgen aus PC CADDIE & Swiss Golf','HCP wird beim Speichern einer Runde automatisch eingetragen','HCP-Kurve auch ohne gespeicherte Runden sichtbar']},
+  {v:'1.2.0',date:'20.06.2026',notes:['Scrambling %, Ø OB/Runde, 1-Putt- & 3+-Putt-Statistik','Handicap-Entwicklung (HCP-Kurve)','Notizfeld pro Runde','Stableford-Punkte im Verlauf']},
+  {v:'1.1.0',date:'20.06.2026',notes:['App-Icon (Golf-Logo)','Live Netto-HCP-Tracker während der Runde','Front 9 / Back 9 mit Stableford-Punkten','Fairway & GiR als einzelne Kacheln','Abbrechen & Speichern gleich gross, unter Scorecard']},
+  {v:'1.0.0',date:'20.06.2026',notes:['Erste Version: Score, Fairway, GiR, Putts, OB','3 Plätze: Davos, Klosters, Alvaneu Bad','Statistiken, Verlauf, Kurs-Editor']}
+];
 var COURSES = {};
 var ROUNDS = [];
 var HCP_LOG = [];
@@ -1282,6 +1293,23 @@ function seedCourses(){
   save('ga_courses',COURSES);
 }
 
+// ── CHANGELOG ───────────────────────────────────────────────────
+function openChangelog(){
+  var html=CHANGELOG.map(function(entry){
+    var isCurrent=entry.v===APP_VERSION;
+    var notes=entry.notes.map(function(n){
+      return '<div style="font-size:12px;color:var(--light);padding:2px 0;">· '+n+'</div>';
+    }).join('');
+    return '<div style="margin-bottom:14px;">'
+      +'<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">'
+      +'<span style="font-family:var(--mono);font-size:14px;font-weight:700;color:'+(isCurrent?'var(--gold)':'var(--white)')+';">v'+entry.v+'</span>'
+      +(isCurrent?'<span style="font-size:10px;background:var(--gold);color:#000;padding:1px 6px;border-radius:8px;font-weight:700;">AKTUELL</span>':'')
+      +'<span style="font-size:11px;color:var(--grey);margin-left:auto;">'+entry.date+'</span>'
+      +'</div>'+notes+'</div>';
+  }).join('');
+  openSheet('Versionsinfo',html);
+}
+
 // ── HCP LOG ──────────────────────────────────────────────────────
 function seedHcpLog(){
   if(HCP_LOG.length>=18) return;
@@ -1360,6 +1388,8 @@ function deleteHcpEntry(date){
 loadAll();
 seedCourses();
 seedHcpLog();
+var verEl=document.getElementById('ver-display');
+if(verEl) verEl.textContent=APP_VERSION;
 renderStats();
 </script>
 </body>
