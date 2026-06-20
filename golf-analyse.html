@@ -893,6 +893,11 @@ function saveRound(){
   if(noteEl&&noteEl.value.trim()) activeRound.note=noteEl.value.trim();
   ROUNDS.push(activeRound);
   save('ga_rounds',ROUNDS);
+  var course=COURSES[activeRound.courseId];
+  var courseName=course?course.name:'General Play';
+  HCP_LOG=HCP_LOG.filter(function(e){return e.date!==activeRound.date;});
+  HCP_LOG.push({date:activeRound.date,hcp:activeRound.handicap||0,note:courseName});
+  save('ga_hcp_log',HCP_LOG);
   activeRound=null;
   showToast('Runde gespeichert!');
   document.getElementById('round-setup').style.display='block';
