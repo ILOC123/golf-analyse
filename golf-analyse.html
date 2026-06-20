@@ -719,15 +719,18 @@ function updateSummaryStrip(){
   document.getElementById('sum-out').textContent=outV?outS:'—';
   document.getElementById('sum-in').textContent=inV?inS:'—';
 
-  // Netto HCP stand
+  // Netto HCP stand (nur gespielte Löcher)
   var pHcp=activeRound.playingHcp||0;
-  var strokesReceived=0;
+  var visitedScore=0,visitedPar=0,strokesReceived=0;
   activeRound.holes.forEach(function(h,i){
     if(!activeRound.visited[i]) return;
+    var par=course&&course.holes[i]?course.holes[i].par:4;
     var si=course&&course.holes[i]?course.holes[i].si:0;
+    visitedPar+=par;
+    visitedScore+=h.score||par;
     strokesReceived+=extraStrokes(pHcp,si);
   });
-  var nettoDiff=diff-strokesReceived;
+  var nettoDiff=(visitedScore-visitedPar)-strokesReceived;
   var nettoLabel=totS===0?'—':(nettoDiff===0?'E':(nettoDiff>0?'+'+nettoDiff:''+nettoDiff));
   var nettoColor=nettoDiff>0?'var(--red)':nettoDiff<0?'var(--green)':'var(--grey)';
   var nettoEl=document.getElementById('sum-netto');
