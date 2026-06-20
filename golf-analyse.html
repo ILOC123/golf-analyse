@@ -332,6 +332,10 @@ html,body{height:100%;background:var(--dark);color:var(--white);font-family:var(
 
         <div id="live-overview" style="padding:0 12px 8px;"></div>
 
+        <div style="padding:0 12px 6px;">
+          <textarea class="form-input" id="round-note" placeholder="Notiz zur Runde (optional)..." rows="2" style="resize:none;font-size:13px;padding:9px 10px;"></textarea>
+        </div>
+
         <div style="padding:0 12px 16px;display:flex;gap:8px;">
           <button class="btn-secondary" style="flex:1" onclick="cancelRound()">Abbrechen</button>
           <button class="btn-primary" style="flex:1" id="save-round-btn" onclick="saveRound()" disabled>Runde speichern ✓</button>
@@ -462,7 +466,8 @@ function diffLabel(d){
 function calcStats(rounds){
   if(!rounds.length) return null;
   var totalScore=0,rCount=rounds.length,totalHoles=0;
-  var fwHit=0,fwTot=0,girHit=0,putts=0;
+  var fwHit=0,fwTot=0,girHit=0,putts=0,totalOB=0;
+  var scrMiss=0,scrSave=0,onePutt=0,threePlus=0,puttHoles=0;
   var dist={eagle:0,birdie:0,par:0,bogey:0,doppel:0,triple:0};
   var byPar={3:{s:0,n:0},4:{s:0,n:0},5:{s:0,n:0}};
   var byHole={};
@@ -476,7 +481,10 @@ function calcStats(rounds){
       rs+=h.score; totalHoles++;
       if(h.fairway!==null&&h.fairway!==undefined){fwTot++;if(h.fairway==='H'||h.fairway===true)fwHit++;}
       if(h.gir) girHit++;
-      putts+=(h.putts||0);
+      var p=h.putts||0; putts+=p;
+      if(h.putts!==undefined&&h.putts!==null){puttHoles++;if(p===1)onePutt++;if(p>=3)threePlus++;}
+      totalOB+=(h.ob||0);
+      if(h.gir===false){scrMiss++;if(h.score<=par)scrSave++;}
       dist[diffLabel(h.score-par)]++;
       if(byPar[par]){byPar[par].s+=h.score;byPar[par].n++;}
       if(!byHole[i]) byHole[i]={s:0,n:0,par:par};
@@ -496,6 +504,10 @@ function calcStats(rounds){
     fwPct:fwTot?Math.round(fwHit/fwTot*100):null,
     girPct:totalHoles?Math.round(girHit/totalHoles*100):null,
     avgPutts:(putts/rCount).toFixed(1),
+    avgOB:(totalOB/rCount).toFixed(1),
+    scrPct:scrMiss?Math.round(scrSave/scrMiss*100):null,
+    onePuttPct:puttHoles?Math.round(onePutt/puttHoles*100):null,
+    threePlusPct:puttHoles?Math.round(threePlus/puttHoles*100):null,
     dist, byPar, holeArr,
     maxDist:Math.max.apply(null,Object.values(dist))
   };
@@ -542,6 +554,29 @@ function renderStats(){
       +'<div class="hole-stat-diff '+cls+'">'+sign+h.diff.toFixed(2)+'</div></div>';
   }
 
+
+  var hcpSorted=filteredRounds().slice().sort(function(a,b){return a.date.localeCompare(b.date);});
+  var hcpKurve='';
+  if(hcpSorted.length>=2){
+    var hcpVals=hcpSorted.map(function(r){return r.handicap||0;});
+    var hcpMax=Math.max.apply(null,hcpVals)||1;
+    var hcpRows=hcpSorted.map(function(r,i){
+      var hcp=r.handicap||0;
+      var pct=Math.round(hcp/hcpMax*100);
+      var dp=r.date.split('-'); var ds=dp[2]+'.'+dp[1];
+      var prev=i>0?hcpVals[i-1]:hcp;
+      var arr=hcp<prev?'↓':hcp>prev?'↑':'→';
+      var ac=hcp<prev?'var(--green)':hcp>prev?'var(--red)':'var(--grey)';
+      return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">'
+        +'<div style="width:38px;font-size:10px;color:var(--grey);">'+ds+'</div>'
+        +'<div style="flex:1;background:var(--dark3);border-radius:4px;height:9px;">'
+        +'<div style="width:'+pct+'%;background:var(--gold);border-radius:4px;height:9px;"></div></div>'
+        +'<div style="width:30px;font-family:var(--mono);font-size:12px;font-weight:700;text-align:right;">'+hcp+'</div>'
+        +'<div style="width:14px;font-size:11px;color:'+ac+';">'+arr+'</div></div>';
+    }).join('');
+    hcpKurve='<div class="card"><div class="card-hdr"><div class="card-title">Handicap-Entwicklung</div></div>'
+      +'<div class="card-body" style="padding:10px 14px;">'+hcpRows+'</div></div>';
+  }
   var worst=s.holeArr.slice(0,3);
   var best=s.holeArr.slice(-3).reverse();
 
@@ -555,10 +590,18 @@ function renderStats(){
 
     +'<div class="stat-chips">'
     +'<div class="stat-chip"><div class="sc-val">'+s.avgScore+'</div><div class="sc-lbl">Score Ø</div></div>'
-    +'<div class="stat-chip"><div class="sc-val">'+(s.fwPct!==null?s.fwPct+'%':'—')+'</div><div class="sc-lbl">Fairway</div></div>'
-    +'<div class="stat-chip"><div class="sc-val">'+(s.girPct!==null?s.girPct+'%':'—')+'</div><div class="sc-lbl">GiR</div></div>'
-    +'<div class="stat-chip"><div class="sc-val">'+s.avgPutts+'</div><div class="sc-lbl">Putts</div></div>'
+    +'<div class="stat-chip"><div class="sc-val">'+(s.fwPct!==null?s.fwPct+'%':'—')+'</div><div class="sc-lbl">Fairway %</div></div>'
+    +'<div class="stat-chip"><div class="sc-val">'+(s.girPct!==null?s.girPct+'%':'—')+'</div><div class="sc-lbl">GiR %</div></div>'
+    +'<div class="stat-chip"><div class="sc-val">'+s.avgPutts+'</div><div class="sc-lbl">Putts Ø</div></div>'
+    +'<div class="stat-chip"><div class="sc-val">'+(s.scrPct!==null?s.scrPct+'%':'—')+'</div><div class="sc-lbl">Scrambling</div></div>'
+    +'<div class="stat-chip"><div class="sc-val">'+s.avgOB+'</div><div class="sc-lbl">OB Ø</div></div>'
     +'</div>'
+    +'<div class="card"><div class="card-hdr"><div class="card-title">Putt-Analyse</div></div>'
+    +'<div class="card-body" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">'
+    +'<div><div style="font-family:var(--display);font-size:24px;color:var(--green);">'+(s.onePuttPct!==null?s.onePuttPct+'%':'—')+'</div><div style="font-size:10px;color:var(--grey);margin-top:2px;">1-Putt</div></div>'
+    +'<div><div style="font-family:var(--display);font-size:24px;color:var(--white);">'+(s.avgPutts)+'</div><div style="font-size:10px;color:var(--grey);margin-top:2px;">Ø / Runde</div></div>'
+    +'<div><div style="font-family:var(--display);font-size:24px;color:var(--red);">'+(s.threePlusPct!==null?s.threePlusPct+'%':'—')+'</div><div style="font-size:10px;color:var(--grey);margin-top:2px;">3+ Putts</div></div>'
+    +'</div></div>'
 
     +'<div class="card"><div class="card-hdr"><div class="card-title">Score-Verteilung</div></div><div class="card-body">'+distHtml+'</div></div>'
 
@@ -566,7 +609,8 @@ function renderStats(){
     +'<div class="par-grid">'+parCard(3)+parCard(4)+parCard(5)+'</div>'
 
     +(worst.length?'<div class="card"><div class="card-hdr"><div class="card-title">Schwächste Löcher</div></div>'+worst.map(holeRow).join('')+'</div>':'')
-    +(best.length?'<div class="card"><div class="card-hdr"><div class="card-title">Stärkste Löcher</div></div>'+best.map(holeRow).join('')+'</div>':'');
+    +(best.length?'<div class="card"><div class="card-hdr"><div class="card-title">Stärkste Löcher</div></div>'+best.map(holeRow).join('')+'</div>':'')
+    +hcpKurve;
 }
 
 // ── HCP HELPERS ──────────────────────────────────────────────────
@@ -835,6 +879,8 @@ function setGir(val){if(!activeRound)return; activeRound.holes[activeHole].gir=v
 function saveRound(){
   if(!activeRound) return;
   if(activeRound.visited.filter(Boolean).length<18){showToast('Alle 18 Löcher eingeben');return;}
+  var noteEl=document.getElementById('round-note');
+  if(noteEl&&noteEl.value.trim()) activeRound.note=noteEl.value.trim();
   ROUNDS.push(activeRound);
   save('ga_rounds',ROUNDS);
   activeRound=null;
@@ -913,6 +959,21 @@ function showRoundOverview(){
   openSheet('Rundenübersicht', header + halfTable(0,9,'Vor') + halfTable(9,18,'Nach'));
 }
 
+// ── STABLEFORD HELPER ────────────────────────────────────────────
+function calcRoundStableford(round){
+  var course=COURSES[round.courseId];
+  var pHcp=round.playingHcp||0;
+  var pts=0;
+  round.holes.forEach(function(h,i){
+    if(!h||!h.score) return;
+    var par=course&&course.holes[i]?course.holes[i].par:4;
+    var si=course&&course.holes[i]?course.holes[i].si:0;
+    var ex=extraStrokes(pHcp,si);
+    var d=(h.score-ex)-par;
+    pts+=d<=-2?4:d===-1?3:d===0?2:d===1?1:0;
+  });
+  return pts;
+}
 // ── HISTORY ──────────────────────────────────────────────────────
 function renderHistory(){
   var el=document.getElementById('history-body');
@@ -930,12 +991,17 @@ function renderHistory(){
     var diff=score-par;
     var ds=diff===0?'E':(diff>0?'+'+diff:''+diff);
     var dc=diff>0?'clr-pos':diff<0?'clr-neg':'clr-neu';
+    var pts=calcRoundStableford(r);
     var date=r.date.split('-').reverse().join('.');
     html+='<div class="list-row" onclick="openRoundDetail(\''+r.id+'\')">'
       +'<div class="list-row-main"><div class="list-row-title">'+name+'</div>'
-      +'<div class="list-row-sub">'+date+' · '+r.tee+' · HCP '+r.handicap+'</div></div>'
+      +'<div class="list-row-sub">'+date+' · '+r.tee+' · HCP '+r.handicap+'</div>'
+      +(r.note?'<div style="font-size:11px;color:var(--grey);margin-top:2px;font-style:italic;">'+r.note+'</div>':'')
+      +'</div>'
       +'<div class="list-row-right"><div class="list-score">'+score+'</div>'
-      +'<div class="list-diff '+dc+'">'+ds+'</div></div></div>';
+      +'<div class="list-diff '+dc+'">'+ds+'</div>'
+      +'<div style="font-size:10px;color:var(--gold);font-weight:700;margin-top:1px;">'+pts+' Pkt</div>'
+      +'</div></div>';
   });
   html+='</div>';
   el.innerHTML=html;
