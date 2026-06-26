@@ -881,6 +881,9 @@ function buildLiveScorecard(){
     var ts=0,tp=0,anyV=false;
     for(var i=start;i<end;i++){
       var par=course&&course.holes[i]?course.holes[i].par:4;
+      var si=course&&course.holes[i]?course.holes[i].si:0;
+      var pHcp=activeRound.playingHcp||0;
+      var extras=extraStrokes(pHcp,si);
       var vis=activeRound.visited[i];
       var sc=activeRound.holes[i].score||par;
       tp+=par;
@@ -889,7 +892,7 @@ function buildLiveScorecard(){
       if(vis){
         ts+=sc; anyV=true;
         var d=sc-par;
-        sr+='<td style="padding:3px 2px;">'+scoreBadge(sc,par,10)+'</td>';
+        sr+='<td style="padding:3px 2px;">'+scoreBadge(sc,par+extras,10)+'</td>';
         dr+='<td style="padding:3px 2px;font-size:9px;color:'+(d>0?'var(--red)':d<0?'var(--green)':'var(--grey)')+';">'+diffStr(d)+'</td>';
       } else {
         sr+='<td style="padding:3px 2px;font-size:10px;color:var(--grey);">·</td>';
@@ -1106,7 +1109,7 @@ function openRoundDetail(rid){
     bk.sc+=sc; bk.par+=par; bk.putts+=(h.putts||0); bk.ob+=(h.ob||0); bk.pts+=pts; bk.diff+=(sc-par);
     if(h.fairway!==null&&h.fairway!==undefined){bk.fwT++;if(h.fairway==='H'||h.fairway===true)bk.fwH++;}
     if(h.gir) bk.gir++;
-    rows+='<tr><td>'+(i+1)+'</td><td>'+par+slashes+'</td><td>'+scoreBadge(sc,par,12)+'</td>'
+    rows+='<tr><td>'+(i+1)+'</td><td>'+par+slashes+'</td><td>'+scoreBadge(sc,par+extras,12)+'</td>'
       +'<td>'+fw+'</td><td>'+girCell+'</td><td>'+puttCell+'</td>'
       +'<td>'+(h.ob||0)+'</td><td>'+ptsCell+'</td>'
       +'<td class="'+dc+'">'+ds+'</td></tr>';
