@@ -72,7 +72,8 @@ html,body{height:100%;background:var(--dark);color:var(--white);font-family:var(
 .form-input{width:100%;background:var(--dark3);border:1.5px solid rgba(0,0,0,0.10);border-radius:var(--r-sm);padding:12px 14px;color:var(--white);font-size:15px;font-family:var(--font);min-height:var(--touch);}
 .form-input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(0,107,84,0.10);}
 input[type="date"]#r-date{-webkit-appearance:none;appearance:none;background:var(--dark3);color:var(--white);border:1.5px solid rgba(0,0,0,0.10);border-radius:var(--r-sm);}
-input[type="date"]#r-date::-webkit-date-and-time-value{color:var(--white);text-align:left;}
+input[type="date"]#r-date::-webkit-date-and-time-value{color:var(--white);text-align:center;}
+#r-course,#r-tee,#r-date,#r-hcp{height:36px!important;min-height:0!important;padding-top:0!important;padding-bottom:0!important;}
 .form-select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888070' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-color:var(--dark3);padding-right:36px;}
 
 /* FILTER CHIPS */
@@ -238,22 +239,24 @@ input[type="date"]#r-date::-webkit-date-and-time-value{color:var(--white);text-a
     <!-- RUNDE -->
     <div class="view" id="view-round">
       <div id="round-setup" class="round-setup">
-        <div class="form-group">
-          <label class="form-label">Golfplatz</label>
-          <select class="form-input form-select" id="r-course" onchange="onCourseChange()"></select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Abschlag</label>
-          <select class="form-input form-select" id="r-tee"></select>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+          <div style="min-width:0;overflow:hidden;">
+            <label class="form-label" style="font-size:9px;margin-bottom:3px;">GOLFPLATZ</label>
+            <select class="form-input form-select" id="r-course" style="padding:7px 6px;font-size:14px;min-height:auto;height:36px;text-align:center;width:100%;box-sizing:border-box;" onchange="onCourseChange()"></select>
+          </div>
+          <div style="min-width:0;overflow:hidden;">
+            <label class="form-label" style="font-size:9px;margin-bottom:3px;">ABSCHLAG</label>
+            <select class="form-input form-select" id="r-tee" style="padding:7px 6px;font-size:14px;min-height:auto;height:36px;text-align:center;width:100%;box-sizing:border-box;"></select>
+          </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
           <div style="min-width:0;overflow:hidden;">
             <label class="form-label" style="font-size:9px;margin-bottom:3px;">DATUM</label>
-            <input type="date" class="form-input" id="r-date" style="font-size:12px;padding:7px 6px;width:100%;box-sizing:border-box;-webkit-appearance:none;appearance:none;color:var(--white);">
+            <input type="date" class="form-input" id="r-date" style="font-family:var(--mono);font-size:14px;font-weight:700;text-align:center;padding:7px 6px;height:36px;width:100%;box-sizing:border-box;-webkit-appearance:none;appearance:none;color:var(--white);">
           </div>
           <div style="min-width:0;overflow:hidden;">
             <label class="form-label" style="font-size:9px;margin-bottom:3px;">HANDICAP</label>
-            <input type="number" class="form-input" id="r-hcp" min="0" max="54" step="0.1" inputmode="decimal" style="font-family:var(--mono);text-align:center;font-size:14px;font-weight:700;padding:7px 6px;width:100%;box-sizing:border-box;">
+            <input type="number" class="form-input" id="r-hcp" min="0" max="54" step="0.1" inputmode="decimal" style="font-family:var(--mono);text-align:center;font-size:14px;font-weight:700;padding:7px 6px;height:36px;width:100%;box-sizing:border-box;">
           </div>
         </div>
         <button class="btn-primary" onclick="startRound()">Runde starten →</button>
@@ -393,8 +396,9 @@ input[type="date"]#r-date::-webkit-date-and-time-value{color:var(--white);text-a
 
 <script>
 // ── DATA ──────────────────────────────────────────────────────────
-var APP_VERSION = '1.5.0';
+var APP_VERSION = '1.6.0';
 var CHANGELOG = [
+  {v:'1.6.0',date:'26.06.2026',notes:['Rundendetail als vollständige Scorecard','Fairway/GiR/Putts farbig (grün/rot)','Spielvorgabe im Chip + Vorgabeschläge in Par-Spalte','Stableford-Punkte pro Loch','Front 9 / Back 9 Out/In-Split','Fairway-Berechnung Bug behoben (L/R zählte fälschlich als Hit)','Runden-Setup: alle 4 Kacheln gleich gross']},
   {v:'1.5.0',date:'21.06.2026',notes:['WHS Handicap-Schätzung (beste 8 von 20 Score Differentials)','Score Differential pro Runde berechnet und angezeigt','Gewertete Runden in Handicap-Entwicklung markiert','Runde löschen entfernt auch HCP-Log-Eintrag','Brutto-Kachel in Statistik zentriert']},
   {v:'1.4.0',date:'20.06.2026',notes:['Versionsanzeige mit Changelog','Klosters & Alvaneu Bad bestätigt']},
   {v:'1.3.0',date:'20.06.2026',notes:['HCP-Log mit 20 Einträgen aus PC CADDIE & Swiss Golf','HCP wird beim Speichern einer Runde automatisch eingetragen','HCP-Kurve auch ohne gespeicherte Runden sichtbar']},
@@ -1056,23 +1060,60 @@ function openRoundDetail(rid){
   var c=COURSES[r.courseId];
   var name=c?c.name:'Unbekannter Platz';
   var date=r.date.split('-').reverse().join('.');
-  var tScore=0,tPar=0,tPutts=0,fwH=0,fwT=0,girH=0;
+  var tScore=0,tPar=0,tPutts=0,fwH=0,fwT=0,girH=0,tPts=0;
+  var teeData=c?c.tees.find(function(t){return t.name===r.tee;}):null;
+  var cPar=c?c.holes.reduce(function(s,h){return s+h.par;},0):72;
+  var playHcp=teeData?calcPlayingHcp(r.handicap,teeData.cr,teeData.sr,cPar):null;
 
-  var rows=r.holes.map(function(h,i){
+  var f9={sc:0,par:0,putts:0,fwH:0,fwT:0,gir:0,pts:0,ob:0,diff:0};
+  var b9={sc:0,par:0,putts:0,fwH:0,fwT:0,gir:0,pts:0,ob:0,diff:0};
+  var rows='';
+  r.holes.forEach(function(h,i){
     var par=c&&c.holes[i]?c.holes[i].par:4;
     var sc=h.score||0;
     tScore+=sc; tPar+=par; tPutts+=(h.putts||0);
-    if(h.fairway!==null&&h.fairway!==undefined){fwT++;if(h.fairway)fwH++;}
+    if(h.fairway!==null&&h.fairway!==undefined){fwT++;if(h.fairway==='H'||h.fairway===true)fwH++;}
     if(h.gir) girH++;
     var diff=sc-par;
     var ds=diff===0?'E':(diff>0?'+'+diff:''+diff);
     var dc=diff>0?'clr-pos':diff<0?'clr-neg':'clr-neu';
-    var fw=par<=3?'—':(h.fairway==='H'||h.fairway===true?'✓':h.fairway==='L'?'◄L':h.fairway==='R'?'R►':h.fairway===false?'✗':'—');
-    return '<tr><td>'+(i+1)+'</td><td>'+par+'</td><td>'+(sc||'—')+'</td>'
-      +'<td>'+fw+'</td><td>'+(h.gir?'✓':'✗')+'</td><td>'+(h.putts||0)+'</td>'
-      +'<td>'+(h.ob||0)+'</td>'
+    var si=c&&c.holes[i]?c.holes[i].si:0;
+    var extras=playHcp!==null?extraStrokes(playHcp,si):0;
+    var pts=sc?Math.max(0,par+extras-sc+2):0; tPts+=pts;
+    var ptsColor=pts===0?'var(--red)':pts>=3?'var(--gold)':'var(--white)';
+    var ptsCell='<span style="color:'+ptsColor+'">'+(sc?pts:'—')+'</span>';
+    var fw=par<=3?'—':(h.fairway==='H'||h.fairway===true?'<span style="color:var(--green)">✔</span>':h.fairway==='L'?'<span style="color:var(--red)">◄L</span>':h.fairway==='R'?'<span style="color:var(--red)">R►</span>':h.fairway===false?'<span style="color:var(--red)">✗</span>':'—');
+    var girCell=h.gir?'<span style="color:var(--green)">✔</span>':'<span style="color:var(--red)">✗</span>';
+    var puttCell=(h.putts||0)>=3?'<span style="color:var(--red)">'+h.putts+'</span>':(h.putts||0);
+    var slashes=' <span style="font-size:11px;color:var(--gold);display:inline-block;min-width:14px">'+(extras>0?('\\'.repeat(extras)):'')+' </span>';
+    var bk=i<9?f9:b9;
+    bk.sc+=sc; bk.par+=par; bk.putts+=(h.putts||0); bk.ob+=(h.ob||0); bk.pts+=pts; bk.diff+=(sc-par);
+    if(h.fairway!==null&&h.fairway!==undefined){bk.fwT++;if(h.fairway==='H'||h.fairway===true)bk.fwH++;}
+    if(h.gir) bk.gir++;
+    rows+='<tr><td>'+(i+1)+'</td><td>'+par+slashes+'</td><td>'+(sc||'—')+'</td>'
+      +'<td>'+fw+'</td><td>'+girCell+'</td><td>'+puttCell+'</td>'
+      +'<td>'+(h.ob||0)+'</td><td>'+ptsCell+'</td>'
       +'<td class="'+dc+'">'+ds+'</td></tr>';
-  }).join('');
+    if(i===8){
+      var f9ds=f9.diff===0?'E':(f9.diff>0?'+'+f9.diff:''+f9.diff);
+      rows+='<tr style="background:var(--dark3);font-weight:700;font-size:12px;">'
+        +'<td>Out</td><td>'+f9.par+'</td><td>'+f9.sc+'</td>'
+        +'<td>'+(f9.fwT?Math.round(f9.fwH/f9.fwT*100)+'%':'—')+'</td>'
+        +'<td>'+Math.round(f9.gir/9*100)+'%</td>'
+        +'<td>'+f9.putts+'</td><td>'+f9.ob+'</td>'
+        +'<td>'+f9.pts+'</td><td>'+f9ds+'</td></tr>'
+        +'<tr style="height:8px;background:var(--dark);"><td colspan="9"></td></tr>';
+    }
+    if(i===17){
+      var b9ds=b9.diff===0?'E':(b9.diff>0?'+'+b9.diff:''+b9.diff);
+      rows+='<tr style="background:var(--dark3);font-weight:700;font-size:12px;">'
+        +'<td>In</td><td>'+b9.par+'</td><td>'+b9.sc+'</td>'
+        +'<td>'+(b9.fwT?Math.round(b9.fwH/b9.fwT*100)+'%':'—')+'</td>'
+        +'<td>'+Math.round(b9.gir/9*100)+'%</td>'
+        +'<td>'+b9.putts+'</td><td>'+b9.ob+'</td>'
+        +'<td>'+b9.pts+'</td><td>'+b9ds+'</td></tr>';
+    }
+  });
 
   var totDiff=tScore-tPar;
   var totDs=totDiff===0?'E':(totDiff>0?'+'+totDiff:''+totDiff);
@@ -1080,16 +1121,21 @@ function openRoundDetail(rid){
   var html='<div style="margin-bottom:10px;font-size:12px;color:var(--grey);">'+date+' · '+r.tee+' · HCP '+r.handicap+'</div>'
     +'<div class="stat-chips" style="padding:0 0 12px;">'
     +'<div class="stat-chip"><div class="sc-val">'+tScore+'</div><div class="sc-lbl">Score</div></div>'
+    +'<div class="stat-chip"><div class="sc-val">'+(playHcp!==null?playHcp:'—')+'</div><div class="sc-lbl">Spielvorgabe</div></div>'
     +'<div class="stat-chip"><div class="sc-val">'+(fwT?Math.round(fwH/fwT*100)+'%':'—')+'</div><div class="sc-lbl">Fairway</div></div>'
     +'<div class="stat-chip"><div class="sc-val">'+Math.round(girH/18*100)+'%</div><div class="sc-lbl">GiR</div></div>'
     +'<div class="stat-chip"><div class="sc-val">'+tPutts+'</div><div class="sc-lbl">Putts</div></div>'
     +'</div>'
     +'<div style="overflow-x:auto;"><table class="dtable">'
-    +'<thead><tr><th>Loch</th><th>Par</th><th>Score</th><th>FW</th><th>GiR</th><th>Putts</th><th>OB</th><th>+/-</th></tr></thead>'
+    +'<thead><tr><th>Loch</th><th>Par</th><th>Score</th><th>FW</th><th>GiR</th><th>Putts</th><th>OB</th><th>Pkt</th><th>+/-</th></tr></thead>'
     +'<tbody>'+rows+'</tbody>'
-    +'<tfoot><tr><td>Total</td><td>'+tPar+'</td><td>'+tScore+'</td>'
+    +'<tfoot>'
+    +'<tr style="height:8px;background:var(--dark);"><td colspan="9"></td></tr>'
+    +'<tr style="font-size:9px;color:var(--grey);font-weight:600;letter-spacing:0.4px;text-transform:uppercase;"><td></td><td>Par</td><td>Score</td><td>FW</td><td>GiR</td><td>Putts</td><td>OB</td><td>Pkt</td><td>+/-</td></tr>'
+    +'<tr><td>Total</td><td>'+tPar+'</td><td>'+tScore+'</td>'
     +'<td>'+(fwT?Math.round(fwH/fwT*100)+'%':'—')+'</td><td>'+Math.round(girH/18*100)+'%</td>'
     +'<td>'+tPutts+'</td><td>'+r.holes.reduce(function(s,h){return s+(h.ob||0);},0)+'</td>'
+    +'<td>'+tPts+'</td>'
     +'<td>'+totDs+'</td></tr></tfoot>'
     +'</table></div>'
     +'<div style="margin-top:16px;"><button class="btn-danger" id="del-round-btn" onclick="deleteRound(\''+rid+'\')">Runde löschen</button></div>';
