@@ -398,6 +398,7 @@ input[type="date"]#r-date::-webkit-date-and-time-value{color:var(--white);text-a
 // ── DATA ──────────────────────────────────────────────────────────
 var APP_VERSION = '1.6.0';
 var CHANGELOG = [
+  {v:'1.7.0',date:'26.06.2026',notes:['Putts/GiR in Putt-Analyse (aussagekräftiger als Gesamt-Putts)','Big-Miss Ø/Runde (Doppelbogey+) als eigener Chip']},
   {v:'1.6.0',date:'26.06.2026',notes:['Rundendetail als vollständige Scorecard','Fairway/GiR/Putts farbig (grün/rot)','Spielvorgabe im Chip + Vorgabeschläge in Par-Spalte','Stableford-Punkte pro Loch','Front 9 / Back 9 Out/In-Split','Fairway-Berechnung Bug behoben (L/R zählte fälschlich als Hit)','Runden-Setup: alle 4 Kacheln gleich gross']},
   {v:'1.5.0',date:'21.06.2026',notes:['WHS Handicap-Schätzung (beste 8 von 20 Score Differentials)','Score Differential pro Runde berechnet und angezeigt','Gewertete Runden in Handicap-Entwicklung markiert','Runde löschen entfernt auch HCP-Log-Eintrag','Brutto-Kachel in Statistik zentriert']},
   {v:'1.4.0',date:'20.06.2026',notes:['Versionsanzeige mit Changelog','Klosters & Alvaneu Bad bestätigt']},
@@ -487,7 +488,7 @@ function calcStats(rounds){
   if(!rounds.length) return null;
   var totalScore=0,rCount=rounds.length,totalHoles=0;
   var fwHit=0,fwTot=0,girHit=0,putts=0,totalOB=0;
-  var scrMiss=0,scrSave=0,onePutt=0,threePlus=0,puttHoles=0;
+  var scrMiss=0,scrSave=0,onePutt=0,threePlus=0,puttHoles=0,girPutts=0,girPuttHoles=0;
   var dist={eagle:0,birdie:0,par:0,bogey:0,doppel:0,triple:0};
   var byPar={3:{s:0,n:0},4:{s:0,n:0},5:{s:0,n:0}};
   var byHole={};
@@ -503,6 +504,7 @@ function calcStats(rounds){
       if(h.gir) girHit++;
       var p=h.putts||0; putts+=p;
       if(h.putts!==undefined&&h.putts!==null){puttHoles++;if(p===1)onePutt++;if(p>=3)threePlus++;}
+      if(h.gir&&h.putts!=null){girPuttHoles++;girPutts+=p;}
       totalOB+=(h.ob||0);
       if(h.gir===false){scrMiss++;if(h.score<=par)scrSave++;}
       dist[diffLabel(h.score-par)]++;
@@ -528,6 +530,8 @@ function calcStats(rounds){
     scrPct:scrMiss?Math.round(scrSave/scrMiss*100):null,
     onePuttPct:puttHoles?Math.round(onePutt/puttHoles*100):null,
     threePlusPct:puttHoles?Math.round(threePlus/puttHoles*100):null,
+    puttPerGir:girPuttHoles?(girPutts/girPuttHoles).toFixed(2):null,
+    bigMissPerRound:((dist.doppel+(dist.triple||0))/rCount).toFixed(1),
     dist, byPar, holeArr,
     maxDist:Math.max.apply(null,Object.values(dist))
   };
@@ -635,11 +639,13 @@ function renderStats(){
     +'<div class="stat-chip"><div class="sc-val">'+s.avgPutts+'</div><div class="sc-lbl">Putts Ø</div></div>'
     +'<div class="stat-chip"><div class="sc-val">'+(s.scrPct!==null?s.scrPct+'%':'—')+'</div><div class="sc-lbl">Scrambling</div></div>'
     +'<div class="stat-chip"><div class="sc-val">'+s.avgOB+'</div><div class="sc-lbl">OB Ø</div></div>'
+    +'<div class="stat-chip"><div class="sc-val" style="color:var(--red)">'+s.bigMissPerRound+'</div><div class="sc-lbl">BigMiss Ø</div></div>'
     +'</div>'
     +'<div class="card"><div class="card-hdr"><div class="card-title">Putt-Analyse</div></div>'
-    +'<div class="card-body" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">'
+    +'<div class="card-body" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;text-align:center;">'
     +'<div><div style="font-family:var(--display);font-size:24px;color:var(--green);">'+(s.onePuttPct!==null?s.onePuttPct+'%':'—')+'</div><div style="font-size:10px;color:var(--grey);margin-top:2px;">1-Putt</div></div>'
     +'<div><div style="font-family:var(--display);font-size:24px;color:var(--white);">'+(s.avgPutts)+'</div><div style="font-size:10px;color:var(--grey);margin-top:2px;">Ø / Runde</div></div>'
+    +'<div><div style="font-family:var(--display);font-size:24px;color:'+(s.puttPerGir!==null&&parseFloat(s.puttPerGir)<=1.8?'var(--green)':s.puttPerGir!==null&&parseFloat(s.puttPerGir)>=2.0?'var(--red)':'var(--white)')+';">'+(s.puttPerGir!==null?s.puttPerGir:'—')+'</div><div style="font-size:10px;color:var(--grey);margin-top:2px;">Putts/GiR</div></div>'
     +'<div><div style="font-family:var(--display);font-size:24px;color:var(--red);">'+(s.threePlusPct!==null?s.threePlusPct+'%':'—')+'</div><div style="font-size:10px;color:var(--grey);margin-top:2px;">3+ Putts</div></div>'
     +'</div></div>'
 
