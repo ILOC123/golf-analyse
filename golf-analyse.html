@@ -540,7 +540,7 @@ function calcStats(rounds){
 // ── RENDER STATS ─────────────────────────────────────────────────
 function renderHcpKurve(){
   var hcpSorted=HCP_LOG.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
-  var btn='<button class="btn-secondary btn-sm" onclick="openHcpSheet()" style="font-size:12px;padding:4px 10px;">+ Eintrag</button>';
+  var btn='<button onclick="openHcpSheet()" style="background:none;border:1px solid rgba(0,0,0,0.15);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:600;color:var(--grey);cursor:pointer;font-family:var(--font);letter-spacing:0.5px;">+ Eintrag</button>';
   if(!hcpSorted.length){
     return '<div class="card"><div class="card-hdr"><div class="card-title">Handicap-Entwicklung</div>'+btn+'</div>'
       +'<div class="card-body"><div style="font-size:13px;color:var(--grey);text-align:center;padding:8px 0;">Noch keine Einträge.</div></div></div>';
