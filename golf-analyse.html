@@ -211,6 +211,12 @@ input[type="date"]#r-date::-webkit-date-and-time-value{color:var(--white);text-a
 .scv.bogey{color:var(--orange);}
 .scv.doppel{color:var(--red);}
 .scv.triple{color:#8E44AD;}
+.sc-badge{display:inline-flex;align-items:center;justify-content:center;font-weight:700;line-height:1;}
+.sc-badge.eagle{border:1.5px solid #D4A800;border-radius:50%;outline:1.5px solid #D4A800;outline-offset:2px;color:#D4A800;}
+.sc-badge.birdie{border:1.5px solid var(--green);border-radius:50%;color:var(--green);}
+.sc-badge.bogey{border:1.5px solid var(--orange);border-radius:3px;color:var(--orange);}
+.sc-badge.doppel{border:1.5px solid var(--red);border-radius:3px;outline:1.5px solid var(--red);outline-offset:2px;color:var(--red);}
+.sc-badge.triple{border:1.5px solid #8E44AD;border-radius:3px;outline:1.5px solid #8E44AD;outline-offset:2px;color:#8E44AD;}
 </style>
 </head>
 <body>
@@ -475,6 +481,15 @@ function filteredRounds(){
 }
 
 // ── STATS CALCULATIONS ───────────────────────────────────────────
+function scoreBadge(sc,par,sz){
+  if(!sc) return '—';
+  var d=sc-par;
+  var cls=d<=-2?'eagle':d===-1?'birdie':d===0?'':d===1?'bogey':d===2?'doppel':'triple';
+  var fs=sz||13;
+  if(!cls) return '<span style="font-weight:700;font-size:'+fs+'px;">'+sc+'</span>';
+  var dim=Math.round(fs*1.9);
+  return '<span class="sc-badge '+cls+'" style="width:'+dim+'px;height:'+dim+'px;font-size:'+fs+'px;">'+sc+'</span>';
+}
 function diffLabel(d){
   if(d<=-2) return 'eagle';
   if(d===-1) return 'birdie';
@@ -856,11 +871,6 @@ function buildLiveScorecard(){
   if(!activeRound) return '';
   var course=COURSES[activeRound.courseId];
 
-  function scoreStyle(score,par){
-    var d=score-par;
-    var bg=d<=-2?'#D4A800':d===-1?'var(--green)':d===1?'var(--orange)':d===2?'var(--red)':d>=3?'#8E44AD':'';
-    return bg?'background:'+bg+';color:#FFF;border-radius:3px;font-weight:700;':'font-weight:700;';
-  }
 
   function diffStr(d){
     return d===0?'E':(d>0?'+'+d:''+d);
@@ -879,7 +889,7 @@ function buildLiveScorecard(){
       if(vis){
         ts+=sc; anyV=true;
         var d=sc-par;
-        sr+='<td style="padding:3px 2px;font-size:10px;'+scoreStyle(sc,par)+'">'+sc+'</td>';
+        sr+='<td style="padding:3px 2px;">'+scoreBadge(sc,par,10)+'</td>';
         dr+='<td style="padding:3px 2px;font-size:9px;color:'+(d>0?'var(--red)':d<0?'var(--green)':'var(--grey)')+';">'+diffStr(d)+'</td>';
       } else {
         sr+='<td style="padding:3px 2px;font-size:10px;color:var(--grey);">·</td>';
@@ -1096,7 +1106,7 @@ function openRoundDetail(rid){
     bk.sc+=sc; bk.par+=par; bk.putts+=(h.putts||0); bk.ob+=(h.ob||0); bk.pts+=pts; bk.diff+=(sc-par);
     if(h.fairway!==null&&h.fairway!==undefined){bk.fwT++;if(h.fairway==='H'||h.fairway===true)bk.fwH++;}
     if(h.gir) bk.gir++;
-    rows+='<tr><td>'+(i+1)+'</td><td>'+par+slashes+'</td><td>'+(sc||'—')+'</td>'
+    rows+='<tr><td>'+(i+1)+'</td><td>'+par+slashes+'</td><td>'+scoreBadge(sc,par,12)+'</td>'
       +'<td>'+fw+'</td><td>'+girCell+'</td><td>'+puttCell+'</td>'
       +'<td>'+(h.ob||0)+'</td><td>'+ptsCell+'</td>'
       +'<td class="'+dc+'">'+ds+'</td></tr>';
