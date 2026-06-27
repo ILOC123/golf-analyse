@@ -1482,22 +1482,7 @@ var verEl=document.getElementById('ver-display');
 if(verEl) verEl.textContent=APP_VERSION;
 renderStats();
 
-function exportData(){
-  var data={rounds:ROUNDS,courses:COURSES,hcpLog:HCP_LOG};
-  var json=JSON.stringify(data,null,2);
-  var a=document.createElement('a');
-  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(json);
-  a.download='golf-daten.json';
-  a.click();
-}
 </script>
-
-<!-- Daten-Export für Migration -->
-<div style="position:fixed;bottom:70px;right:12px;z-index:999;">
-  <button onclick="exportData()" style="background:rgba(0,107,84,0.9);border:none;border-radius:20px;padding:8px 14px;color:#FFF;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);">
-    Daten exportieren
-  </button>
-</div>
 
 </body>
 </html>
